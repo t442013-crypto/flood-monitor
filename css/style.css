@@ -1,0 +1,142 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+#map {
+  height: calc(100vh - 56px);
+  width: 100%;
+  z-index: 1;
+}
+
+/* ปุ่มรายงานลอย */
+#btnReport {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 62px;
+  height: 62px;
+  z-index: 1000;
+  font-size: 1.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(220, 53, 69, 0.45);
+  transition: all 0.2s ease;
+}
+
+#btnReport:hover {
+  transform: scale(1.08);
+}
+
+/* Legend จากประชาชน */
+#legend {
+  position: fixed;
+  bottom: 28px;
+  left: 16px;
+  z-index: 999;
+  min-width: 160px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(6px);
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
+}
+
+/* Legend ดาวเทียม */
+#satellite-legend {
+  position: fixed;
+  bottom: 140px;
+  left: 16px;
+  z-index: 999;
+  min-width: 180px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(6px);
+  display: none;
+}
+
+.legend-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.legend-color {
+  width: 18px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid rgba(0,0,0,0.15);
+}
+
+/* Custom Marker */
+.custom-marker {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+
+.user-marker {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0d6efd;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+/* Popup */
+.leaflet-popup-content {
+  margin: 10px 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.leaflet-popup-content img {
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 8px;
+  max-height: 140px;
+  object-fit: cover;
+}
+
+.badge-level-รุนแรง { background-color: #dc3545; }
+.badge-level-ปานกลาง { background-color: #fd7e14; }
+.badge-level-เล็กน้อย { background-color: #198754; }
+
+/* Layer Control */
+.leaflet-control-layers {
+  border-radius: 10px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+.leaflet-control-layers-expanded {
+  padding: 10px 14px !important;
+}
+
+.leaflet-control-layers label {
+  font-size: 0.9rem !important;
+  margin-bottom: 6px !important;
+}
