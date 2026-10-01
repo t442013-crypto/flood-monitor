@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>แผนที่สถานการณ์น้ำท่วม | อำเภอบางบัวทอง</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- SweetAlert2 -->
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark bg-danger sticky-top shadow-sm">
+    <div class="container-fluid">
+      <span class="navbar-brand mb-0 h1 fw-bold">
+        <i class="bi bi-water"></i> สถานการณ์น้ำท่วม อำเภอบางบัวทอง
+      </span>
+      <div class="d-flex gap-2">
+        <button class="btn btn-light btn-sm" id="btnRefresh" title="รีเฟรชข้อมูล">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
+        <a href="dashboard.html" class="btn btn-outline-light btn-sm">
+          <i class="bi bi-bar-chart"></i> สรุป
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- แผนที่ -->
+  <div id="map"></div>
+
+  <!-- Legend ระดับน้ำท่วมจากประชาชน -->
+  <div id="legend" class="card shadow-sm">
+    <div class="card-body p-2">
+      <div class="fw-bold small mb-1">ระดับน้ำท่วม (จากประชาชน)</div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="legend-dot" style="background:#dc3545;"></span>
+        <span class="small">รุนแรง (สูง)</span>
+      </div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="legend-dot" style="background:#fd7e14;"></span>
+        <span class="small">ปานกลาง</span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="legend-dot" style="background:#198754;"></span>
+        <span class="small">เล็กน้อย</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend ชั้นดาวเทียม GISTDA -->
+  <div id="satellite-legend" class="card shadow-sm">
+    <div class="card-body p-2">
+      <div class="legend-title">พื้นที่น้ำท่วมจากดาวเทียม (GISTDA)</div>
+      <div class="legend-item">
+        <div class="legend-color" style="background:#0066cc;"></div>
+        <span>พื้นที่น้ำท่วมขัง</span>
+      </div>
+      <div class="small text-muted mt-1">ข้อมูลจากภาพถ่ายดาวเทียม อัปเดตอัตโนมัติ</div>
+    </div>
+  </div>
+
+  <!-- ปุ่มรายงาน -->
+  <button id="btnReport" class="btn btn-danger btn-lg rounded-circle shadow-lg" title="รายงานจุดน้ำท่วม">
+    <i class="bi bi-plus-lg"></i>
+  </button>
+
+  <!-- Modal ฟอร์มรายงาน -->
+  <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title">
+            <i class="bi bi-exclamation-triangle me-2"></i>รายงานจุดน้ำท่วม
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="reportForm">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold">ตำแหน่งปัจจุบัน</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="locationText" readonly placeholder="กำลังค้นหาตำแหน่ง...">
+                  <button type="button" class="btn btn-outline-danger" id="btnGetLocation">
+                    <i class="bi bi-geo-alt"></i>
+                  </button>
+                </div>
+                <input type="hidden" id="lat">
+                <input type="hidden" id="lng">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">ตำบล <span class="text-danger">*</span></label>
+                <select class="form-select" id="tambon" required>
+                  <option value="">-- เลือกตำบล --</option>
+                  <option value="บางบัวทอง">บางบัวทอง</option>
+                  <option value="บางคูรัด">บางคูรัด</option>
+                  <option value="บางรักพัฒนา">บางรักพัฒนา</option>
+                  <option value="บางรักใหญ่">บางรักใหญ่</option>
+                  <option value="ละหาร">ละหาร</option>
+                  <option value="ลำโพ">ลำโพ</option>
+                  <option value="โสนลอย">โสนลอย</option>
+                  <option value="พิมลราช">พิมลราช</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">ระดับน้ำท่วม <span class="text-danger">*</span></label>
+                <select class="form-select" id="level" required>
+                  <option value="">-- เลือกระดับ --</option>
+                  <option value="เล็กน้อย">เล็กน้อย (น้อยกว่า 20 ซม.)</option>
+                  <option value="ปานกลาง">ปานกลาง (20-50 ซม.)</option>
+                  <option value="รุนแรง">รุนแรง (มากกว่า 50 ซม.)</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-semibold">รายละเอียดเพิ่มเติม</label>
+                <textarea class="form-control" id="description" rows="3" placeholder="เช่น น้ำท่วมถนนหน้าวัด รถเล็กผ่านไม่ได้..."></textarea>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">ชื่อผู้รายงาน</label>
+                <input type="text" class="form-control" id="reporter_name" placeholder="ไม่ระบุก็ได้">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">รูปภาพ (ถ้ามี)</label>
+                <input type="file" class="form-control" id="image" accept="image/*">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+          <button type="button" class="btn btn-danger" id="btnSubmitReport">
+            <i class="bi bi-send me-1"></i> ส่งรายงาน
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
